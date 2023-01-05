@@ -197,6 +197,11 @@ class NFlow(object):
                  'server_fingerprint',
                  'user_agent',
                  'content_type',
+                 'risk',
+                 'risk_severity',
+                 'risk_score_total',
+                 'risk_score_client',
+                 'risk_score_server',
                  '_C',
                  'udps',
                  'system_process_pid',
@@ -295,6 +300,11 @@ class NFlow(object):
                 self.application_category_name = ffi.string(self._C.category_name).decode('utf-8', errors='ignore')
                 self.application_is_guessed = self._C.guessed
                 self.application_confidence = self._C.confidence
+                self.risk = ffi.string(self._C.risk).decode('utf-8', errors='ignore')
+                self.risk_severity = ffi.string(self._C.risk_severity).decode('utf-8', errors='ignore')
+                self.risk_score_total = self._C.risk_score_total
+                self.risk_score_client = self._C.risk_score_client
+                self.risk_score_server = self._C.risk_score_server
                 self.requested_server_name = ffi.string(self._C.requested_server_name).decode('utf-8', errors='ignore')
                 self.client_fingerprint = ffi.string(self._C.c_hash).decode('utf-8', errors='ignore')
                 self.server_fingerprint = ffi.string(self._C.s_hash).decode('utf-8', errors='ignore')
@@ -305,6 +315,11 @@ class NFlow(object):
                 self.application_category_name = None
                 self.application_is_guessed = None
                 self.application_confidence = None
+                self.risk = None
+                self.risk_severity = None
+                self.risk_score_total = None
+                self.risk_score_client = None
+                self.risk_score_server = None
                 self.requested_server_name = None
                 self.client_fingerprint = None
                 self.server_fingerprint = None
@@ -444,6 +459,12 @@ class NFlow(object):
                 self.content_type = ffi.string(self._C.content_type).decode('utf-8', errors='ignore')
                 self.application_is_guessed = self._C.guessed
                 self.application_confidence = self._C.confidence
+                self.risk = ffi.string(self._C.risk).decode('utf-8', errors='ignore')
+                self.risk_severity = ffi.string(self._C.risk_severity).decode('utf-8', errors='ignore')
+                self.risk_score_total = self._C.risk_score_total
+                self.risk_score_client = self._C.risk_score_client
+                self.risk_score_server = self._C.risk_score_server
+
         if splt:
             if sync_mode:  # Same for splt, once we reach splt limit, there is no need to sync it anymore.
                 if self._C.bidirectional_packets <= splt:
