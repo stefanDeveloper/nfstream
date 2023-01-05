@@ -16,6 +16,8 @@ If not, see <http://www.gnu.org/licenses/>.
 from collections import namedtuple
 from math import sqrt
 from .utils import NFEvent
+from inspect import getmembers
+
 
 # When NFStream is extended with plugins, packer C structure is pythonized using the following namedtuple.
 nf_packet = namedtuple('NFPacket', ['time',
@@ -97,6 +99,19 @@ def pythonize_packet(packet, ffi, flow):
                      fin=packet.fin,
                      tunnel_id=packet.tunnel_id)
 
+
+def cdata_dict(cd, ffi):
+    """ convert a cdata struct into a dict """
+    if isinstance(cd, ffi.CData):
+        try:
+            return ffi.string(cd).decode('utf-8', errors='ignore')
+        except TypeError:
+            try:
+                return [cdata_dict(x, ffi) for x in cd]
+            except TypeError:
+                return {k: cdata_dict(v, ffi) for k, v in getmembers(cd)}
+    else:
+        return cd
 
 class NFlow(object):
     """
@@ -197,11 +212,7 @@ class NFlow(object):
                  'server_fingerprint',
                  'user_agent',
                  'content_type',
-                 'risk',
-                 'risk_severity',
-                 'risk_score_total',
-                 'risk_score_client',
-                 'risk_score_server',
+                 'flow_risk',
                  '_C',
                  'udps',
                  'system_process_pid',
@@ -300,11 +311,7 @@ class NFlow(object):
                 self.application_category_name = ffi.string(self._C.category_name).decode('utf-8', errors='ignore')
                 self.application_is_guessed = self._C.guessed
                 self.application_confidence = self._C.confidence
-                self.risk = ffi.string(self._C.risk).decode('utf-8', errors='ignore')
-                self.risk_severity = ffi.string(self._C.risk_severity).decode('utf-8', errors='ignore')
-                self.risk_score_total = self._C.risk_score_total
-                self.risk_score_client = self._C.risk_score_client
-                self.risk_score_server = self._C.risk_score_server
+                self.flow_risk = [d for d in cdata_dict(self._C.nf_risk_t, ffi) if d['risk'] != '']
                 self.requested_server_name = ffi.string(self._C.requested_server_name).decode('utf-8', errors='ignore')
                 self.client_fingerprint = ffi.string(self._C.c_hash).decode('utf-8', errors='ignore')
                 self.server_fingerprint = ffi.string(self._C.s_hash).decode('utf-8', errors='ignore')
@@ -315,11 +322,7 @@ class NFlow(object):
                 self.application_category_name = None
                 self.application_is_guessed = None
                 self.application_confidence = None
-                self.risk = None
-                self.risk_severity = None
-                self.risk_score_total = None
-                self.risk_score_client = None
-                self.risk_score_server = None
+                self.flow_risk = []
                 self.requested_server_name = None
                 self.client_fingerprint = None
                 self.server_fingerprint = None
@@ -459,11 +462,7 @@ class NFlow(object):
                 self.content_type = ffi.string(self._C.content_type).decode('utf-8', errors='ignore')
                 self.application_is_guessed = self._C.guessed
                 self.application_confidence = self._C.confidence
-                self.risk = ffi.string(self._C.risk).decode('utf-8', errors='ignore')
-                self.risk_severity = ffi.string(self._C.risk_severity).decode('utf-8', errors='ignore')
-                self.risk_score_total = self._C.risk_score_total
-                self.risk_score_client = self._C.risk_score_client
-                self.risk_score_server = self._C.risk_score_server
+                self.flow_risk = [d for d in cdata_dict(self._C.nf_risk_t, ffi) if d['risk'] != '']
 
         if splt:
             if sync_mode:  # Same for splt, once we reach splt limit, there is no need to sync it anymore.
