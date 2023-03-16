@@ -903,9 +903,13 @@ static void flow_bidirectional_dissection_collect_info(struct ndpi_detection_mod
         
         uint16_t client_score, server_score;
         uint16_t score = ndpi_risk2score(r, &client_score, &server_score);
+        
+        char* risk = ndpi_risk2str(risk_info->risk);
+        size_t len = strlen(risk);
 
-        memcpy(flow->nf_risk_t[j].risk, ndpi_risk2str(risk_info->risk), sizeof(flow->nf_risk_t[j].risk));
+        memcpy(flow->nf_risk_t[j].risk, risk, len);
         memcpy(flow->nf_risk_t[j].risk_severity, ndpi_severity2str(risk_info->severity), sizeof(flow->nf_risk_t[j].risk_severity));
+
         flow->nf_risk_t[j].risk_score_total = score;
         flow->nf_risk_t[j].risk_score_client = client_score;
         flow->nf_risk_t[j].risk_score_server = server_score;
